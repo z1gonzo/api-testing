@@ -1,0 +1,45 @@
+import Song from '../models/song';
+
+
+
+export default {
+   async findOne(req, res, next) {
+       const song = await Song.findOne({ slug: req.params.slug });
+       if (!song) return next(); 
+       return req.status(200).send({ data: song })
+   },
+
+   async findAll(req, res) {
+       const songs = await Song.find().sort({ createdAt: 'desc' });
+       return res.status(200).send({ data: songs });
+   },
+
+   async create(req, res) {
+       const song = await new Song({
+           title: req.body.title,
+           genre: req.body.genre
+       }).save();
+
+       return res.status(201).send({ data: song, message: `Song was created.`})
+   },
+
+   async update(req, res, next) {
+       const song = await Song.findOne({ 'slug': req.params.slug });
+       if (!song) return next();
+
+       song.title = req.body.title;
+       await song.save()
+
+       return res.status(200).send({ data: song, message: `Song was updated.`})
+   },
+
+   async remove(req, res, next) {
+       const song = await Song.findOne({ 'slug': req.params.slug});
+       if (!song) return next();
+
+       song.title = req.body.title;
+       await song.remove();
+
+       return res.status(200).send({ message: `Song was deleted.`})
+   }
+}
